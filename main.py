@@ -69,11 +69,11 @@ def crawl_data_content(url_vnw):
     career= soup.find_all('div', class_='col-xs-10 summary-content')
     links = [link.find('a') for link in career]
     print(links)
-    #print(title)
-    #print(benefits)
-    #print(description)
-    #print(requirement)
-    #print(skill)
+    print(title)
+    print(benefits)
+    print(description)
+    print(requirement)
+    print(skill)
     #print(career)
 
 
