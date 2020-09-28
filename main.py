@@ -71,7 +71,7 @@ def crawl_data_content(url_vnw):
     print(links)
     print(title)
     print(benefits)
-    print(description)
+    #print(description)
     #print(requirement)
     #print(skill)
     #print(career)
