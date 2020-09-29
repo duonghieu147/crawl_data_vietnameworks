@@ -32,7 +32,8 @@ def csv_writer(data, path):
 
 
 # Function crawling data per link
-def crawl_data_content(url_vnw):
+data = []
+def crawl_data_content(url_vnw,data):
     response=requests.get(url_vnw)
     print(response)
     soup = BeautifulSoup(response.content, "html.parser")
@@ -44,17 +45,28 @@ def crawl_data_content(url_vnw):
     # skill=[]
     # career=[]
     # benefits=[]
-    data = []
-    title = soup.find("h1", class_="job-title").text
-    benefits= soup.find("div", class_="benefits").text
-    description= soup.find("div", class_="description").text
-    skill = soup.findChildren('span', class_='content')[3].text
-    requirement=soup.find("div", class_="requirements").text
-    title=''.join(title.split())
-    benefits = ''.join(benefits.split())
-    description = ''.join(description.split())
-    skill = ''.join(skill.split())
-    requirement = ''.join(requirement.split())
+    title = soup.find("h1", class_="job-title")
+    benefits= soup.find("div", class_="benefits")
+    description= soup.find("div", class_="description")
+    skill = soup.findChildren('span', class_='content')[3]
+    requirement=soup.find("div", class_="requirements")
+    if title is None:
+        title=''
+        benefits=''
+        description=''
+        skill=''
+        requirement=''
+    elif 1:
+        title=title.text
+        benefits=benefits.text
+        description=description.text
+        skill=skill.text
+        requirement=requirement.text
+    title=' '.join(title.split())
+    benefits = ' '.join(benefits.split())
+    description = ' '.join(description.split())
+    skill = ' '.join(skill.split())
+    requirement = ' '.join(requirement.split())
     print('Job:_________________________________________________'+'\n'+ title)
     print('Benefits:____________________________________________'+'\n'+ benefits)
     print('description:_________________________________________'+'\n'+ description)
@@ -67,15 +79,15 @@ def crawl_data_content(url_vnw):
         "Requirement":requirement,
         "Skill":skill
     })
-    # df = pd.DataFrame(data=data)
-    # df.to_csv("c:\\Users\\hieudv\\PycharmProjects\\Crawl_data_test\\vietnameworks.csv","w" ,header=True, index=True,encoding='utf-8')
+    df = pd.DataFrame(data=data)
+    df.to_csv("c:\\Users\\DuongHieu\\PycharmProjects\\crawl_data_vietnameworks\\vietnameworks.csv",header=True, index=True)#,encoding='utf-8')
     #print(data)
     return data
     #print(career)
 
 
 #Function main crwal full data from filed
-def crawl_data_vnw(request_url,from_data):
+def crawl_data_vnw(request_url,from_data,data):
     response=requests.post(request_url,from_data)
     #print(response)
     soup = BeautifulSoup(response.content, "html.parser").text
@@ -84,16 +96,18 @@ def crawl_data_vnw(request_url,from_data):
     length_link=len(parsed_json['results'][0]['hits'])#
     print(length_link)
     k=0
-    while k<length_link/40:
+    while k<length_link:
         alias = parsed_json['results'][0]['hits'][k]['alias']
         jobId = parsed_json['results'][0]['hits'][k]['jobId']
         link_works = 'https://www.vietnamworks.com/' + str(alias) + '-' + str(jobId) +'-' +'jv'
         print(link_works)
-        crawl_data_content(link_works)
+        crawl_data_content(link_works,data)
         k = k + 1
         print('Number Record :' + str(k))
 
 
+# for k in from_data:
+#     crawl_data_vnw(request_url[0],k,data)
 
 
 
@@ -101,7 +115,5 @@ def crawl_data_vnw(request_url,from_data):
 
 
 
-
-
-#crawl_data_vnw(request_url[0],from_data[0])
-crawl_data_content(url_vnw)
+crawl_data_vnw(request_url[0],from_data[2],data)
+#crawl_data_content(url_vnw,data)
