@@ -1,8 +1,9 @@
 from bs4 import BeautifulSoup
 import requests
 import json
-#import pandas as pd
+import pandas as pd
 import numpy as np
+import array as arr
 
 url=['https://www.vietnamworks.com/viec-lam-internet-online-media-i57-vn',
      'https://www.vietnamworks.com/viec-lam-it-phan-mem-i35-vn',
@@ -19,36 +20,18 @@ url_vnw='https://www.vietnamworks.com/senior-java-microservices-salary-up-to-250
 
 
 
-
-def crawl_data_vnw(request_url,from_data):
-    response=requests.post(request_url,from_data)
-    #print(response)
-    soup = BeautifulSoup(response.content, "html.parser").text
-    #print(soup)
-    parsed_json = (json.loads(soup)) # parse a JSON string
-    length_link=len(parsed_json['results'][0]['hits'])#
-    print(length_link)
-    k=0
-    while k<length_link:
-        alias = parsed_json['results'][0]['hits'][k]['alias']
-        jobId = parsed_json['results'][0]['hits'][k]['jobId']
-        link_works = 'https://www.vietnamworks.com/' + str(alias) + '-' + str(jobId) +'-' +'jv'
-        # print(alias)
-        # print(jobId)
-        print(link_works)
-        k = k + 1
+def csv_writer(data, path):
+    """
+    Write data to a CSV file path
+    """
+    with open(path, "wb") as csv_file:
+        writer = csv.writer(csv_file, delimiter=',')
+        for line in data:
+            writer.writerow(line)
 
 
 
-
-
-
-
-
-
-
-#crawl_data_vnw(request_url[0],from_data[0])
-
+# Function crawling data per link
 def crawl_data_content(url_vnw):
     response=requests.get(url_vnw)
     print(response)
@@ -61,34 +44,64 @@ def crawl_data_content(url_vnw):
     # skill=[]
     # career=[]
     # benefits=[]
+    data = []
     title = soup.find("h1", class_="job-title").text
     benefits= soup.find("div", class_="benefits").text
     description= soup.find("div", class_="description").text
-    skill = soup.findChildren('span', class_='content')[3].text    #skill= soup.find('span',class_='content')
+    skill = soup.findChildren('span', class_='content')[3].text
     requirement=soup.find("div", class_="requirements").text
-    career= soup.find_all('div', class_='col-xs-10 summary-content')
-    links = [link.find('a') for link in career]
-    print(links)
-    print(title)
-    print(benefits)
-    #print(description)
-    #print(requirement)
-    #print(skill)
+    title=''.join(title.split())
+    benefits = ''.join(benefits.split())
+    description = ''.join(description.split())
+    skill = ''.join(skill.split())
+    requirement = ''.join(requirement.split())
+    print('Job:_________________________________________________'+'\n'+ title)
+    print('Benefits:____________________________________________'+'\n'+ benefits)
+    print('description:_________________________________________'+'\n'+ description)
+    print('requirement:_________________________________________'+'\n' +requirement)
+    print('skill:_______________________________________________'+'\n'+skill)
+    data.append({
+        "Job":title,
+        "Benefits":benefits,
+        "Description":description,
+        "Requirement":requirement,
+        "Skill":skill
+    })
+    # df = pd.DataFrame(data=data)
+    # df.to_csv("c:\\Users\\hieudv\\PycharmProjects\\Crawl_data_test\\vietnameworks.csv","w" ,header=True, index=True,encoding='utf-8')
+    #print(data)
+    return data
     #print(career)
 
 
-    # tags= soup.find("div", class_="tags").find_all('span',class_="job-tags__tag-xs tag-xs")
-    # print(tags)
+#Function main crwal full data from filed
+def crawl_data_vnw(request_url,from_data):
+    response=requests.post(request_url,from_data)
+    #print(response)
+    soup = BeautifulSoup(response.content, "html.parser").text
+    #print(soup)
+    parsed_json = (json.loads(soup)) # parse a JSON string
+    length_link=len(parsed_json['results'][0]['hits'])#
+    print(length_link)
+    k=0
+    while k<length_link/40:
+        alias = parsed_json['results'][0]['hits'][k]['alias']
+        jobId = parsed_json['results'][0]['hits'][k]['jobId']
+        link_works = 'https://www.vietnamworks.com/' + str(alias) + '-' + str(jobId) +'-' +'jv'
+        print(link_works)
+        crawl_data_content(link_works)
+        k = k + 1
+        print('Number Record :' + str(k))
 
 
 
 
 
+
+
+
+
+
+
+#crawl_data_vnw(request_url[0],from_data[0])
 crawl_data_content(url_vnw)
-
-
-
-
-
-
-
